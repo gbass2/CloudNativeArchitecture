@@ -8,13 +8,46 @@
 package textproc
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"sort"
+	"strings"
 )
 
 func topWords(path string, K int) []WordCount {
-	// Your code here.....
+	wordMap := map[string]int{} // Creating the map to store the words and the word count.
+
+	// Reading the contents of the file.
+	file, err := os.Open("passage")
+	checkError(err)
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	var text []string
+
+	for scanner.Scan() {
+		text = append(text, scanner.Text())
+	}
+
+	file.Close()
+
+	// Going line by line of the read in contents of the file.
+	for _, each_ln := range text {
+		input := strings.Fields(each_ln)
+
+		// Going word by word and if the word is in the map then increment the integer, if not then add the word to the map with a value of 1.
+		for _, word := range input {
+			_, ok := wordMap[word]
+			if ok {
+				wordMap[word] = wordMap[word] + 1
+			} else {
+				wordMap[word] = 1
+			}
+		}
+	}
+	fmt.Println(wordMap)
 
 }
 
