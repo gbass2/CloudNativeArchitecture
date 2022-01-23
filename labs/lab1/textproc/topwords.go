@@ -9,46 +9,61 @@ package textproc
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"sort"
-	"strings"
 )
 
 func topWords(path string, K int) []WordCount {
+	if K < 0 {
+		checkError(errors.New("Value for K is less than 0"))
+	}
+
 	wordMap := map[string]int{} // Creating the map to store the words and the word count.
 
 	// Reading the contents of the file.
 	file, err := os.Open("passage")
 	checkError(err)
 
+	// Going word by word of the read in contents of the file.
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var text []string
+	scanner.Split(bufio.ScanWords)
+	var words []string
 
 	for scanner.Scan() {
-		text = append(text, scanner.Text())
+		words = append(words, scanner.Text())
 	}
 
 	file.Close()
 
-	// Going line by line of the read in contents of the file.
-	for _, each_ln := range text {
-		input := strings.Fields(each_ln)
-
-		// Going word by word and if the word is in the map then increment the integer, if not then add the word to the map with a value of 1.
-		for _, word := range input {
-			_, ok := wordMap[word]
-			if ok {
-				wordMap[word] = wordMap[word] + 1
-			} else {
-				wordMap[word] = 1
-			}
+	// Going word by word and if the word is in the map then increment the integer, if not then add the word to the map with a value of 1.
+	for _, word := range words {
+		_, ok := wordMap[word]
+		if ok {
+			wordMap[word] = wordMap[word] + 1
+		} else {
+			wordMap[word] = 1
 		}
 	}
-	fmt.Println(wordMap)
 
+	// Covnert each map element to WordCount objects and place in a slice.
+	var wordSlice []WordCount
+
+	for k, v := range wordMap {
+		wordSlice = append(wordSlice, WordCount{Word: k, Count: v})
+	}
+
+	// Sort the Slice
+	sortWordCounts(wordSlice)
+
+	// Returning the top Kth element of the slice. If K > length of the slice then return all of the slice.
+	if K <= len(wordSlice) {
+		wordSlice = wordSlice[:K]
+	}
+
+	return wordSlice
 }
 
 //--------------- DO NOT MODIFY----------------!
