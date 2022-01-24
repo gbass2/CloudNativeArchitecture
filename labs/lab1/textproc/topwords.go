@@ -18,7 +18,7 @@ import (
 
 func topWords(path string, K int) []WordCount {
 	if K <= 0 {
-		checkError(errors.New("Value for K is less than 0"))
+		checkError(errors.New("Value for K is less than or equal 0"))
 	}
 
 	wordMap := map[string]int{} // Creating the map to store the words and the word count.
