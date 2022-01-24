@@ -27,7 +27,7 @@ func topWords(path string, K int) []WordCount {
 	file, err := os.Open("passage")
 	checkError(err)
 
-	// Going word by word of the read in contents of the file.
+	// Converting the contents of the text file to a Slice with each element a different word
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanWords)
 	var words []string
@@ -58,7 +58,7 @@ func topWords(path string, K int) []WordCount {
 	// Sort the Slice
 	sortWordCounts(wordSlice)
 
-	// Returning the top Kth element of the slice. If K > length of the slice then return all of the slice.
+	// Returning the top Kth elements of the slice. If K > length of the slice then return all of the slice.
 	if K <= len(wordSlice) {
 		wordSlice = wordSlice[:K]
 	}
