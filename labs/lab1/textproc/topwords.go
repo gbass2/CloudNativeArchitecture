@@ -17,7 +17,7 @@ import (
 )
 
 func topWords(path string, K int) []WordCount {
-	if K < 0 {
+	if K <= 0 {
 		checkError(errors.New("Value for K is less than 0"))
 	}
 
@@ -42,7 +42,7 @@ func topWords(path string, K int) []WordCount {
 	for _, word := range words {
 		_, ok := wordMap[word]
 		if ok {
-			wordMap[word] = wordMap[word] + 1
+			wordMap[word]++
 		} else {
 			wordMap[word] = 1
 		}
@@ -63,6 +63,7 @@ func topWords(path string, K int) []WordCount {
 		wordSlice = wordSlice[:K]
 	}
 
+	fmt.Println(wordSlice)
 	return wordSlice
 }
 
