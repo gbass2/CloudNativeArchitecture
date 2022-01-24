@@ -36,7 +36,7 @@ func topWords(path string, K int) []WordCount {
 		words = append(words, scanner.Text())
 	}
 
-	file.Close()
+	defer file.Close()
 
 	// Going word by word and if the word is in the map then increment the integer, if not then add the word to the map with a value of 1.
 	for _, word := range words {
