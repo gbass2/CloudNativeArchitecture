@@ -62,13 +62,17 @@ func (lru *lruCache) Put(key, val interface{}) error {
 	v := val.(string)
 
 	b := false // boolean to remove from the front of the queue if a duplicate is not found
-	// If key is in queue remove and add to map again
-		// Leave map alone
+
+	// Check to see if the key already exists in the queue
 	for _,k2 := range(lru.queue){
 		if k == k2 {
-			lru.qDel(k2)
 			b = true
 		}
+	}
+
+	// If the key exists in the queue then remove it
+	if b {
+		lru.qDel(k)
 	}
 
 	// Decrement remaining if not equal to zero
