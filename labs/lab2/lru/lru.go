@@ -2,6 +2,8 @@ package lru
 
 import (
 	"errors"
+	// "reflect"
+	"fmt"
 )
 
 type Cacher interface {
@@ -20,11 +22,18 @@ func NewCache(size int) Cacher {
 	return &lruCache{size: size, remaining: size, cache: make(map[string]string), queue: make([]string, 0)}
 }
 
+// Grayson - Assignment
 func (lru *lruCache) Get(key interface{}) (interface{}, error) {
+	// Noah
+	// Check to make sure the variable type is a string
+	if fmt.Sprintf("%T",key) != "string"{
+		return nil, errors.New("Key is not of type string.")
+	}
+
 	// Convert key to concrete type
 	k := key.(string)
 
-	// Search for key.
+	// Search for value.
 	_,ok := lru.cache[k]
 
 	// return error when key, value does not exist
@@ -42,6 +51,7 @@ func (lru *lruCache) Get(key interface{}) (interface{}, error) {
 }
 
 func (lru *lruCache) Put(key, val interface{}) error {
+	// Brian
 	// Convert key and value to concrete type
 	k := key.(string)
 	v := val.(string)
@@ -56,19 +66,20 @@ func (lru *lruCache) Put(key, val interface{}) error {
 		}
 	}
 
+	// Decrement remaining if not equal to zero
+	if lru.remaining > 0 && !b {
+		lru.remaining--
+		// Add value to hashmap
+		lru.cache[k]=v
+	}
+
+	// Garrett
 	// Check if remaining value is 0
 	// Remove the head queue if a duplicate has not been removed already
 	if lru.remaining == 0 && !b {
 		// Delete the lru element from the map
 		delete(lru.cache, lru.queue[0])
 		lru.queue = lru.queue[1:]
-		// Add value to hashmap
-		lru.cache[k]=v
-	}
-
-	// Decrement remaining if not equal to zero
-	if lru.remaining > 0 && !b {
-		lru.remaining--
 		// Add value to hashmap
 		lru.cache[k]=v
 	}
