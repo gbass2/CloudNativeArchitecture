@@ -26,8 +26,8 @@ func NewCache(size int) Cacher {
 func (lru *lruCache) Get(key interface{}) (interface{}, error) {
 	// Noah
 	// Check to make sure the variable type is a string
-	if fmt.Sprintf("%T",key) != "string"{
-		return nil, errors.New("Key is not of type string.")
+	if fmt.Sprintf("%T",key) != "string" {
+		return nil, errors.New("Key or value is not of type string.")
 	}
 
 	// Convert key to concrete type
@@ -52,6 +52,11 @@ func (lru *lruCache) Get(key interface{}) (interface{}, error) {
 
 func (lru *lruCache) Put(key, val interface{}) error {
 	// Brian
+	// Check to make sure the variable type is a string
+	if (fmt.Sprintf("%T",key) != "string") || (fmt.Sprintf("%T",val) != "string") {
+		return errors.New("Key is not of type string.")
+	}
+
 	// Convert key and value to concrete type
 	k := key.(string)
 	v := val.(string)
