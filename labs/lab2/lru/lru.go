@@ -66,7 +66,7 @@ func (lru *lruCache) Put(key, val interface{}) error {
 		// Leave map alone
 	for _,k2 := range(lru.queue){
 		if k == k2 {
-			lru.queue = lru.queue[1:]
+			lru.qDel(k2)
 			b = true
 		}
 	}
