@@ -16,13 +16,11 @@ import (
 	"strings"
 )
 
-type client chan<- string // an outgoing message channel
-
 // Garrett
 // Client struct which holds the client's name and channel
 type Client struct {
     name string
-    cli client
+    cli chan<- string
 }
 
 // Returns an entered name for the client
@@ -45,7 +43,7 @@ var (
 )
 
 func main() {
-	listener, err := net.Listen("tcp", "localhost:8000")
+	listener, err := net.Listen("tcp", "10.216.27.172:6666")
 	if err != nil {
 		log.Fatal(err)
 	}
