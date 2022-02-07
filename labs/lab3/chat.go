@@ -18,6 +18,26 @@ import (
 
 type client chan<- string // an outgoing message channel
 
+// Garrett
+// Client struct which holds the client's name and channel
+type Client struct {
+    name string
+    cli client
+}
+
+// Returns an entered name for the client
+func (c *Client) readName(conn net.Conn) {
+	c.cli <- "Enter your name: "
+	input := bufio.NewScanner(conn)
+	for input.Scan() {
+		c.name = input.Text() // Get name from command line
+		// If the name is blank or contains only whitespaces then let client re-enter their name
+		if strings.TrimSpace(c.name) != "" {
+			break
+		}
+	}
+}
+
 var (
 	entering = make(chan Client)
 	leaving  = make(chan Client)
@@ -103,25 +123,5 @@ func handleConn(conn net.Conn) {
 func clientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		fmt.Fprintln(conn, msg) // NOTE: ignoring network errors
-	}
-}
-
-// Garrett
-// Client struct which holds the client's name and channel
-type Client struct {
-    name string
-    cli client
-}
-
-// Returns an entered name for the client
-func (c *Client) readName(conn net.Conn) {
-	c.cli <- "Enter your name: "
-	input := bufio.NewScanner(conn)
-	for input.Scan() {
-		c.name = input.Text() // Get name from command line
-		// If the name is blank or contains only whitespaces then let client re-enter their name
-		if strings.TrimSpace(c.name) != "" {
-			break
-		}
 	}
 }
