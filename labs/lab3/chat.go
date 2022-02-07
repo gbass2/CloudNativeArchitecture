@@ -18,6 +18,7 @@ import (
 // Client struct which holds the client's name and channel
 type Client struct {
     name string
+		conn net.Conn
     cli chan<- string
 }
 
@@ -37,6 +38,7 @@ func (c *Client) readName(conn net.Conn) {
 
 type Clients struct {
 	clients map[Client]bool // all connected clients
+	chatHistory []string
 }
 
 // Default constructor for Clients
@@ -45,7 +47,7 @@ func newClients() *Clients {
 	c.clients = make(map[Client]bool)
 	return c
 }
-// Returns an entered name for the client
+// Prints the online clients
 func (c *Clients) printOnlineUsers(cli Client) {
 	// Print the members that are online to the channel
 	cli.cli <- "\nMembers Online:"
@@ -56,15 +58,28 @@ func (c *Clients) printOnlineUsers(cli Client) {
 	cli.cli <- ""
 }
 
+// Prints the chat history
+func (c *Clients) printChatHistory(cli Client) {
+	// Print the members that are online to the channel
+	cli.cli <- "\nChat History:"
+	for _,message := range(clients.chatHistory){
+		cli.cli <- message
+	}
+
+	cli.cli <- ""
+}
+
 // Direct messages a connected client
 func (c *Clients) directMessage(input string, cli Client) {
 	// Print the members that are online to the channel
 	words := strings.Fields(input)
 	name := strings.Replace(words[0], "@", "", -1)
-	message := "(" + time.Now().Format("01-02-2006 15:04:05") + ") " + input
+	message := "(" + time.Now().Format("01-02-2006 15:04:05") + ") (DM) " + cli.name + ": "+ input
+	debug := "(" + time.Now().Format("01-02-2006 15:04:05") + ") (DM) " + cli.conn.RemoteAddr().String() + ": " + cli.name + ": " + input
 
 	for k,_ := range(clients.clients){
 		if name == k.name {
+			fmt.Println(debug)
 			k.cli <- message
 			cli.cli <- message
 
@@ -134,6 +149,11 @@ func broadcaster() {
 			// Print the members that are online to the channel
 			clients.printOnlineUsers(cli)
 
+			// Print the chat history to the new client
+			if len(clients.chatHistory) > 0 {
+				clients.printChatHistory(cli)
+			}
+
 
 		case cli := <-leaving:
 			delete(clients.clients, cli)
@@ -145,7 +165,7 @@ func broadcaster() {
 func handleConn(conn net.Conn) {
 	ch := make(chan string) // outgoing client messages
 	go clientWriter(conn, ch)
-	currClient := Client{name: "", cli: ch}
+	currClient := Client{name: "", conn: conn, cli: ch}
 
 	// Getting the name client's name
 	currClient.readName(conn)
@@ -160,9 +180,11 @@ func handleConn(conn net.Conn) {
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
 		command := clients.commands(input.Text(), currClient)
+		message := "(" + time.Now().Format("01-02-2006 15:04:05") + ") " + currClient.name + ": " + input.Text()
 		if strings.TrimSpace(input.Text()) != "" && !command {
 			fmt.Println("(" + time.Now().Format("01-02-2006 15:04:05") + ") " + conn.RemoteAddr().String()+ ": "+ currClient.name + ": " + input.Text())
-			messages <- "(" + time.Now().Format("01-02-2006 15:04:05") + ") " + currClient.name + ": " + input.Text()
+			messages <- message
+			clients.chatHistory = append(clients.chatHistory, message)
 		}
 	}
 	// NOTE: ignoring potential errors from input.Err()
