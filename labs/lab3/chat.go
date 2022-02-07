@@ -25,7 +25,7 @@ var (
 )
 
 func main() {
-	listener, err := net.Listen("tcp", "192.168.1.223:9999")
+	listener, err := net.Listen("tcp", "localhost:8000")
 	if err != nil {
 		log.Fatal(err)
 	}
