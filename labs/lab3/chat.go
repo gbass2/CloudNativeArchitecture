@@ -13,6 +13,7 @@ import (
 	"net"
 	"time"
 	"strings"
+	"os"
 )
 
 // Client struct which holds the client's name and channel
@@ -69,6 +70,19 @@ func (c *Clients) printChatHistory(cli Client) {
 	cli.cli <- ""
 }
 
+// Saves the chat history upon program exit.
+func (c *Clients) saveChatHistory() error {
+	f, err := os.Create("chat_history.txt")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	for _, message := range clients.chatHistory {
+	 fmt.Fprintln(f, message)
+	}
+	return nil
+}
+
 // Direct messages a connected client
 func (c *Clients) directMessage(input string, cli Client) {
 	// Print the members that are online to the channel
@@ -121,6 +135,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Saving chat history upon exit
+	go func(){
+		input := bufio.NewScanner(os.Stdin)
+		for input.Scan() {
+			if input.Text() == "exit" {
+				clients.saveChatHistory()
+				os.Exit(1)
+			}
+		}
+	}()
 
 	go broadcaster()
 	for {
@@ -198,5 +223,11 @@ func handleConn(conn net.Conn) {
 func clientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		fmt.Fprintln(conn, msg) // NOTE: ignoring network errors
+	}
+}
+
+func checkError(err error) {
+	if err != nil {
+		log.Fatal(err)
 	}
 }
