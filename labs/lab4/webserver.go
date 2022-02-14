@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 	"strconv"
+	"sync"
 )
 
+// Noah
 func main() {
 	db := database{"shoes": 50, "socks": 5}
 	mux := http.NewServeMux()
@@ -24,8 +25,10 @@ type dollars float32
 func (d dollars) String() string { return fmt.Sprintf("$%.2f", d) }
 
 type database map[string]dollars
+
+// Brian
 var muR sync.RWMutex // Setting a lock for reading the map
-var muW sync.Mutex // Setting a lock for writing to the map
+var muW sync.Mutex   // Setting a lock for writing to the map
 
 // Responds with the items in the map and their prices
 func (db database) list(w http.ResponseWriter, req *http.Request) {
@@ -66,6 +69,7 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// Grayson
 // Creates an element in the db map
 func (db database) create(w http.ResponseWriter, req *http.Request) {
 	muW.Lock()
@@ -73,11 +77,11 @@ func (db database) create(w http.ResponseWriter, req *http.Request) {
 
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
-			item := req.URL.Query().Get("item")
-			price,_ := strconv.ParseFloat(req.URL.Query().Get("price"), 32)
+		item := req.URL.Query().Get("item")
+		price, _ := strconv.ParseFloat(req.URL.Query().Get("price"), 32)
 
-			// Adding the item to the database
-			db[item] = dollars(price)
+		// Adding the item to the database
+		db[item] = dollars(price)
 	} else {
 		w.WriteHeader(http.StatusBadRequest) // If the request is not a POST then respond with a bad request
 		fmt.Fprintf(w, "Error: Bad Request\n")
@@ -89,18 +93,17 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 	muW.Lock()
 	defer muW.Unlock()
 
-
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
 		item := req.URL.Query().Get("item")
-		price,_ := strconv.ParseFloat(req.URL.Query().Get("price"), 32)
+		price, _ := strconv.ParseFloat(req.URL.Query().Get("price"), 32)
 
 		// If the item exists then update the price else respond with a not found
 		if _, ok := db[item]; ok {
 			db[item] = dollars(price)
 		} else {
 			w.WriteHeader(http.StatusNotFound) // The item does not exist
-			fmt.Fprintf(w, "(Error) No such item: %q\n", item)d
+			fmt.Fprintf(w, "(Error) No such item: %q\n", item)
 		}
 	} else {
 		w.WriteHeader(http.StatusBadRequest) // If the request is not a POST then respond with a bad request
@@ -108,6 +111,7 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// Garrett
 // Deletes an item in the db map
 func (db database) delete(w http.ResponseWriter, req *http.Request) {
 	muW.Lock()
@@ -117,7 +121,7 @@ func (db database) delete(w http.ResponseWriter, req *http.Request) {
 		item := req.URL.Query().Get("item")
 		// If the item exists then delete it
 		if _, ok := db[item]; ok {
-			delete(db,item)
+			delete(db, item)
 		} else {
 			w.WriteHeader(http.StatusNotFound) // The item does not exist
 			fmt.Fprintf(w, "(Error) No such item: %q\n", item)
