@@ -28,7 +28,6 @@ type database map[string]dollars
 
 // Brian
 var muR sync.RWMutex // Setting a lock for reading the map
-var muW sync.Mutex   // Setting a lock for writing to the map
 
 // Responds with the items in the map and their prices
 func (db database) list(w http.ResponseWriter, req *http.Request) {
@@ -72,8 +71,8 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 // Grayson
 // Creates an element in the db map
 func (db database) create(w http.ResponseWriter, req *http.Request) {
-	muW.Lock()
-	defer muW.Unlock()
+	muR.Lock()
+	defer muR.Unlock()
 
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
@@ -90,8 +89,8 @@ func (db database) create(w http.ResponseWriter, req *http.Request) {
 
 // Updates an item in the db map
 func (db database) update(w http.ResponseWriter, req *http.Request) {
-	muW.Lock()
-	defer muW.Unlock()
+	muR.Lock()
+	defer muR.Unlock()
 
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
@@ -114,8 +113,8 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 // Garrett
 // Deletes an item in the db map
 func (db database) delete(w http.ResponseWriter, req *http.Request) {
-	muW.Lock()
-	defer muW.Unlock()
+	muR.Lock()
+	defer muR.Unlock()
 
 	if req.Method == "POST" {
 		item := req.URL.Query().Get("item")
