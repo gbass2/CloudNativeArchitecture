@@ -24,12 +24,13 @@ type dollars float32
 func (d dollars) String() string { return fmt.Sprintf("$%.2f", d) }
 
 type database map[string]dollars
+var muR sync.RWMutex // Setting a lock for reading the map
+var muW sync.Mutex // Setting a lock for writing to the map
 
 // Responds with the items in the map and their prices
 func (db database) list(w http.ResponseWriter, req *http.Request) {
-	var mu sync.RWMutex
-	mu.RLock()
-	defer mu.RUnlock()
+	muR.RLock()
+	defer muR.RUnlock()
 
 	// Check to see if the request is a GET
 	if req.Method == "GET" {
@@ -45,9 +46,8 @@ func (db database) list(w http.ResponseWriter, req *http.Request) {
 
 // Responds with the price of the requested item
 func (db database) price(w http.ResponseWriter, req *http.Request) {
-	var mu sync.RWMutex
-	mu.RLock()
-	defer mu.RUnlock()
+	muR.RLock()
+	defer muR.RUnlock()
 
 	// Check to see if the request is a GET
 	if req.Method == "GET" {
@@ -68,9 +68,8 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 
 // Creates an element in the db map
 func (db database) create(w http.ResponseWriter, req *http.Request) {
-	var mu sync.RWMutex
-	mu.RLock()
-	defer mu.RUnlock()
+	muW.Lock()
+	defer muW.Unlock()
 
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
@@ -87,9 +86,9 @@ func (db database) create(w http.ResponseWriter, req *http.Request) {
 
 // Updates an item in the db map
 func (db database) update(w http.ResponseWriter, req *http.Request) {
-	var mu sync.RWMutex
-	mu.RLock()
-	defer mu.RUnlock()
+	muW.Lock()
+	defer muW.Unlock()
+
 
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
@@ -111,10 +110,8 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 
 // Deletes an item in the db map
 func (db database) delete(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("here")
-	var mu sync.RWMutex
-	mu.RLock()
-	defer mu.RUnlock()
+	muW.Lock()
+	defer muW.Unlock()
 
 	if req.Method == "POST" {
 		item := req.URL.Query().Get("item")
