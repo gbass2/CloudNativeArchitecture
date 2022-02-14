@@ -100,7 +100,7 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 			db[item] = dollars(price)
 		} else {
 			w.WriteHeader(http.StatusNotFound) // The item does not exist
-			fmt.Fprintf(w, "(Error) No such item: %q\n", item)
+			fmt.Fprintf(w, "(Error) No such item: %q\n", item)d
 		}
 	} else {
 		w.WriteHeader(http.StatusBadRequest) // If the request is not a POST then respond with a bad request
