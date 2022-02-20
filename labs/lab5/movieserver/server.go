@@ -6,9 +6,10 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"fmt"
 	"strings"
 	"labs/lab5/movieapi"
-	// "labs/lab5/grpc-go"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -45,7 +46,7 @@ func (s *server) GetMovieInfo(ctx context.Context, in *movieapi.MovieRequest) (*
 	return reply, nil
 }
 
-func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*movieapi.MovieStatus) {
+func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*movieapi.MovieStatus, error) {
 	title := in.GetTitle()
 	year := in.GetYear()
 	director := in.GetDirector()
@@ -56,27 +57,27 @@ func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*mov
 
 	if strings.TrimSpace(title) == "" {
 		reply.Message = "Invalid movie title. Title is blank"
-		return reply
+		return reply, nil
 	}
 	if strings.TrimSpace(director) == "" {
 		reply.Message = "Invalid movie director. Director is blank"
-		return reply
+		return reply, nil
 	}
 	if len(cast) < 0 {
 		reply.Message = "Invalid movie cast. Cast is blank"
-		return reply
+		return reply, nil
 	}
 
 	if year < 1900 || year > 2022{
 			reply.Message = "Invalid movie year. Year needs to be between 1900 and 2022"
-			return reply
+			return reply, nil
 		}
-	}
 
-	moviedb[title] = [3]string{year,director,cast}
+	castStr := strings.Join(cast[:], ",")
+	moviedb[title] = []string{fmt.Sprint(year),director, castStr}
 
 	reply.Message = ""
-	return reply
+	return reply, nil
 }
 
 func main() {
