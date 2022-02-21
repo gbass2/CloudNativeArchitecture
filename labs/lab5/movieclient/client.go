@@ -64,7 +64,7 @@ func main() {
 		if strings.TrimSpace(r2.GetMessage()) != "" {
 			log.Fatalf(r2.GetMessage())
 		} else {
-			// Query database for movie info of movie added
+			// Query database for movie info of recently movie added
 			log.Printf("Movie added to database with no errors")
 			r3, err := c.GetMovieInfo(ctx, &movieapi.MovieRequest{Title: title})
 
