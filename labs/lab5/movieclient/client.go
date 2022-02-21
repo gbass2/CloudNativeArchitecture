@@ -48,6 +48,7 @@ func main() {
 
 	// Set movie info in database.
 	if len(os.Args) > 3 {
+		// Grayson
 		// Getting the movie info from the command line args.
 		title = os.Args[1]
 		year, _ := strconv.Atoi(os.Args[2])
@@ -60,6 +61,7 @@ func main() {
 		// Adding movie to database
 		r2,_ := c.SetMovieInfo(ctx, &movieapi.MovieData{Title: title, Year: int32(year), Director: director, Cast: castSlice})
 
+		// Noah
 		// If there was an error message then exit.
 		if strings.TrimSpace(r2.GetMessage()) != "" {
 			log.Fatalf(r2.GetMessage())

@@ -5,6 +5,7 @@ option go_package = "gitlab.com/arunravindran/cloudnativecourse/lab5-grpc/moviea
 
 package movieapi;
 
+// Garrett
 service MovieInfo {
 	// Sends a requeest for movie info
 	rpc GetMovieInfo (MovieRequest) returns (MovieReply) {}

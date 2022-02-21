@@ -48,6 +48,7 @@ func (s *server) GetMovieInfo(ctx context.Context, in *movieapi.MovieRequest) (*
 	return reply, nil
 }
 
+// Brian
 func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*movieapi.MovieStatus, error) {
 	// Getting the movie info
 	title := in.GetTitle()
@@ -69,9 +70,16 @@ func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*mov
 	}
 
 	// Check to see if cast members are present.
-	if len(cast) < 2 {
+	if len(cast) < 1 || strings.TrimSpace(cast[0]) == "" {
 		reply.Message = "Invalid movie cast. Cast is blank"
 		return reply, nil
+	} else {
+		for member := range(cast){
+			if strings.TrimSpace(cast[member]) == "" {
+				reply.Message = "Invalid movie cast. Cast is blank"
+				return reply, nil
+			}
+		}
 	}
 
 	// Check to see if the year is valid/
@@ -80,8 +88,10 @@ func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*mov
 		return reply, nil
 	}
 
-	// Add the movie to the database and return no error
+	// Converting cast to a single string.
 	castStr := strings.Join(cast[:], ",")
+
+	// Add the movie to the database and return no error
 	moviedb[title] = []string{fmt.Sprint(year), director, castStr}
 
 	reply.Message = ""
