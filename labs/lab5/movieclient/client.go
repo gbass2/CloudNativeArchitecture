@@ -46,19 +46,25 @@ func main() {
 		log.Printf("Movie Info for %s %d %s %v", title, r1.GetYear(), r1.GetDirector(), r1.GetCast())
 	}
 
+	// Set movie info in database.
 	if len(os.Args) > 3 {
+		// Getting the movie info from the command line args.
 		title = os.Args[1]
 		year, _ := strconv.Atoi(os.Args[2])
 		director := os.Args[3]
 		cast := os.Args[4]
 
+		// Splitting cast into a slice
 		castSlice := strings.Split(cast,",")
 
-		r2,err := c.SetMovieInfo(ctx, &movieapi.MovieData{Title: title, Year: int32(year), Director: director, Cast: castSlice})
+		// Adding movie to database
+		r2,_ := c.SetMovieInfo(ctx, &movieapi.MovieData{Title: title, Year: int32(year), Director: director, Cast: castSlice})
 
-		if err != nil && r2.GetMessage() != "" {
+		// If there was an error message then exit.
+		if strings.TrimSpace(r2.GetMessage()) != "" {
 			log.Fatalf(r2.GetMessage())
 		} else {
+			// Query database for movie info of movie added
 			log.Printf("Movie added to database with no errors")
 			r3, err := c.GetMovieInfo(ctx, &movieapi.MovieRequest{Title: title})
 

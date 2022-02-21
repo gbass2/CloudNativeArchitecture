@@ -3,12 +3,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"strconv"
-	"fmt"
 	"strings"
+
 	"labs/lab5/movieapi"
+
 	"google.golang.org/grpc"
 )
 
@@ -47,34 +49,40 @@ func (s *server) GetMovieInfo(ctx context.Context, in *movieapi.MovieRequest) (*
 }
 
 func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*movieapi.MovieStatus, error) {
+	// Getting the movie info
 	title := in.GetTitle()
 	year := in.GetYear()
 	director := in.GetDirector()
 	cast := in.GetCast()
-
-	log.Printf("Received movie data")
 	reply := &movieapi.MovieStatus{}
 
+	// Check to see if a title is present.
 	if strings.TrimSpace(title) == "" {
 		reply.Message = "Invalid movie title. Title is blank"
 		return reply, nil
 	}
+
+	// Check to see if a director is present.
 	if strings.TrimSpace(director) == "" {
 		reply.Message = "Invalid movie director. Director is blank"
 		return reply, nil
 	}
-	if len(cast) < 0 {
+
+	// Check to see if cast members are present.
+	if len(cast) < 2 {
 		reply.Message = "Invalid movie cast. Cast is blank"
 		return reply, nil
 	}
 
-	if year < 1900 || year > 2022{
-			reply.Message = "Invalid movie year. Year needs to be between 1900 and 2022"
-			return reply, nil
-		}
+	// Check to see if the year is valid/
+	if year < 1900 || year > 2022 {
+		reply.Message = "Invalid movie year. Year needs to be between 1900 and 2022"
+		return reply, nil
+	}
 
+	// Add the movie to the database and return no error
 	castStr := strings.Join(cast[:], ",")
-	moviedb[title] = []string{fmt.Sprint(year),director, castStr}
+	moviedb[title] = []string{fmt.Sprint(year), director, castStr}
 
 	reply.Message = ""
 	return reply, nil
