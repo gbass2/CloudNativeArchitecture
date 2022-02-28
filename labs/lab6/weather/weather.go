@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Grayson
 type Temperature float64
 type Pressure float64
 type Humidity float64
@@ -87,6 +88,7 @@ func (c *Client) GetWeather(location string) (Conditions, error) {
 	return conditions, nil
 }
 
+// Garrett
 func ParseResponse(data []byte) (Conditions, error) {
 	var resp OWMResponse
 	err := json.Unmarshal(data, &resp)
@@ -119,13 +121,13 @@ func Get(location, key string) (Conditions, error) {
 	return conditions, nil
 }
 
+// Grayson
 func RunCLI() {
 	if len(os.Args) < 2 {
 		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n\nExample: %[1]s London,UK", os.Args[0])
 		os.Exit(1)
 	}
 	location := os.Args[1]
-	os.Setenv("OPENWEATHERMAP_API_KEY", "511419a7db9041bd9286775fed0888d0")
 
 	key := os.Getenv("OPENWEATHERMAP_API_KEY")
 	if key == "" {

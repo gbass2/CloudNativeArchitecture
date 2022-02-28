@@ -11,6 +11,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+var key string = os.Getenv("OPENWEATHERMAP_API_KEY")
+
 func TestParseResponse(t *testing.T) {
 	t.Parallel()
 	data, err := os.ReadFile("testdata/weather_data.json")
@@ -55,7 +57,7 @@ func TestParseResponseInvalid(t *testing.T) {
 
 func TestFormatURL(t *testing.T) {
 	t.Parallel()
-	c := NewClient("511419a7db9041bd9286775fed0888d0")
+	c := NewClient(key)
 	location := "Paris,FR"
 	want := "https://api.openweathermap.org/data/2.5/weather?q=Paris%2CFR&appid=511419a7db9041bd9286775fed0888d0"
 	got := c.FormatURL(location)
@@ -66,7 +68,7 @@ func TestFormatURL(t *testing.T) {
 
 func TestFormatURLSpaces(t *testing.T) {
 	t.Parallel()
-	c := NewClient("511419a7db9041bd9286775fed0888d0")
+	c := NewClient(key)
 	location := "Wagga Wagga,AU"
 	want := "https://api.openweathermap.org/data/2.5/weather?q=Wagga+Wagga%2CAU&appid=511419a7db9041bd9286775fed0888d0"
 	got := c.FormatURL(location)
@@ -94,6 +96,7 @@ func TestSimpleHTTP(t *testing.T) {
 	}
 }
 
+// Noah
 func TestGetWeather(t *testing.T) {
 	t.Parallel()
 	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +108,7 @@ func TestGetWeather(t *testing.T) {
 		io.Copy(w, f)
 	}))
 	defer ts.Close()
-	c := NewClient("511419a7db9041bd9286775fed0888d0")
+	c := NewClient(key)
 	c.BaseURL = ts.URL
 	c.HTTPClient = ts.Client()
 	want := Conditions{
@@ -119,7 +122,7 @@ func TestGetWeather(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(got)
+
 	if !cmp.Equal(want, got) {
 		t.Error(cmp.Diff(want, got))
 	}
