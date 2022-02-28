@@ -70,15 +70,15 @@ func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*mov
 	}
 
 	// Check to see if cast members are present.
-	if len(cast) < 1 || strings.TrimSpace(cast[0]) == "" {
+	if len(cast) < 1 {
 		reply.Message = "Invalid movie cast. Cast is blank"
 		return reply, nil
-	} else {
-		for member := range(cast){
-			if strings.TrimSpace(cast[member]) == "" {
-				reply.Message = "Invalid movie cast. Cast is blank"
-				return reply, nil
-			}
+	}
+	
+	for member := range(cast){
+		if strings.TrimSpace(cast[member]) == "" {
+			reply.Message = "Invalid movie cast. Cast is blank"
+			return reply, nil
 		}
 	}
 
