@@ -16,5 +16,5 @@ require (
 	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c // indirect
 )
 
-require github.com/gbass2/CloudNativeArchitecture/tree/main/labs/lab5/movieapi v0.0.0
-replace github.com/gbass2/CloudNativeArchitecture/tree/main/labs/lab5/movieapi v0.0.0 => "/Volumes/SHARE/UNCC/Cloud Native Architecture/CloudNativeArchitecture/labs/lab7/movieapi"
+require "github.com/gbass2/CloudNativeArchitecture/tree/main/labs/lab7/movieapi" v0.0.0
+replace "github.com/gbass2/CloudNativeArchitecture/tree/main/labs/lab7/movieapi" v0.0.0 => "/Volumes/SHARE/UNCC/Cloud Native Architecture/CloudNativeArchitecture/labs/lab7/movieapi"
