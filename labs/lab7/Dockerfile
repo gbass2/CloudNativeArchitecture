@@ -1,13 +1,8 @@
 FROM golang:1.17-alpine AS build
 
-#ENV GO111MODULE=on
-
-COPY ./movieapi /go/src/
-
 WORKDIR /go/src/movieserver/
 
 ADD . /go/src/movieserver/
-#COPY ./lab7/server.go ./
 
 RUN go mod download -x
 
