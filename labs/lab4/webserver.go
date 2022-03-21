@@ -8,7 +8,6 @@ import (
 	"sync"
 )
 
-// Noah
 func main() {
 	db := database{"shoes": 50, "socks": 5}
 	mux := http.NewServeMux()
@@ -17,7 +16,7 @@ func main() {
 	mux.HandleFunc("/update", db.update)
 	mux.HandleFunc("/create", db.create)
 	mux.HandleFunc("/delete", db.delete)
-	log.Fatal(http.ListenAndServe("localhost:8000", mux))
+	log.Fatal(http.ListenAndServe(":8000", mux))
 }
 
 type dollars float32
@@ -26,7 +25,6 @@ func (d dollars) String() string { return fmt.Sprintf("$%.2f", d) }
 
 type database map[string]dollars
 
-// Brian
 var muR sync.RWMutex // Setting a lock for reading the map
 
 // Responds with the items in the map and their prices
@@ -68,7 +66,6 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Grayson
 // Creates an element in the db map
 func (db database) create(w http.ResponseWriter, req *http.Request) {
 	muR.Lock()
@@ -110,7 +107,6 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Garrett
 // Deletes an item in the db map
 func (db database) delete(w http.ResponseWriter, req *http.Request) {
 	muR.Lock()
