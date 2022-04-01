@@ -6,15 +6,13 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
-// Grayson - Intro - structures
 // Mongodb
 const (
 	mongodbEndpoint = "mongodb://172.17.0.2:27017" // Find this from the Mongo container.
@@ -66,13 +64,8 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8000", mux))
 }
 
-var muR sync.RWMutex // Setting a lock for reading the map
-
 // Responds with the items in the map and their prices
 func (db database) list(w http.ResponseWriter, req *http.Request) {
-	muR.RLock()
-	defer muR.RUnlock()
-
 	// Check to see if the request is a GET
 	if req.Method == "GET" {
 		// send a list of the items in the database
@@ -82,27 +75,27 @@ func (db database) list(w http.ResponseWriter, req *http.Request) {
 
 		// Checking for errors.
 		if err != nil {
-			fmt.Fprintf(w, "Error: %s\n",err)
+			fmt.Fprintf(w, "Error: %s\n", err)
 			return
 		}
 
 		for cur.Next(context.TODO()) {
-	        //Create a value into which the single document can be decoded
-	        var elem Inventory
-	        err := cur.Decode(&elem)
+			//Create a value into which the single document can be decoded
+			var elem Inventory
+			err := cur.Decode(&elem)
 
 			if err != nil {
-				fmt.Fprintf(w, "Error: %s\n",err)
+				fmt.Fprintf(w, "Error: %s\n", err)
 				return
 			}
 
 			// Sending back the items.
-	        fmt.Fprintf(w, "%s: %.2f\n", elem.Item, elem.Price)
+			fmt.Fprintf(w, "%s: %.2f\n", elem.Item, elem.Price)
 
-	    }
+		}
 
-	    //Close the cursor once finished
-	    cur.Close(context.TODO())
+		//Close the cursor once finished
+		cur.Close(context.TODO())
 	} else {
 		w.WriteHeader(http.StatusBadRequest) // If the request is not a GET then respond with a bad request
 		fmt.Fprintf(w, "Error: Bad Request\n")
@@ -111,9 +104,6 @@ func (db database) list(w http.ResponseWriter, req *http.Request) {
 
 // Responds with the price of the requested item
 func (db database) price(w http.ResponseWriter, req *http.Request) {
-	muR.RLock()
-	defer muR.RUnlock()
-
 	// Check to see if the request is a GET
 	if req.Method == "GET" {
 		item := req.URL.Query().Get("item")
@@ -128,8 +118,7 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		fmt.Fprintf(w, "%s: %.2f\n",elem.Item, elem.Price)
-
+		fmt.Fprintf(w, "%s: %.2f\n", elem.Item, elem.Price)
 
 	} else {
 		w.WriteHeader(http.StatusBadRequest) // If the request is not a GET then respond with a bad request
@@ -139,9 +128,6 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 
 // Creates an element in the db map
 func (db database) create(w http.ResponseWriter, req *http.Request) {
-	muR.Lock()
-	defer muR.Unlock()
-
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
 		item := req.URL.Query().Get("item")
@@ -158,14 +144,14 @@ func (db database) create(w http.ResponseWriter, req *http.Request) {
 
 		// Adding the item to the database
 		_, err := db.col.InsertOne(db.ctx, &Inventory{
-			ID:        primitive.NewObjectID(),
-			Item:      item,
-			Price:     dollars(price),
+			ID:    primitive.NewObjectID(),
+			Item:  item,
+			Price: dollars(price),
 		})
 
 		// Checking for error.
 		if err != nil {
-			fmt.Fprintf(w, "Error: %s\n",err)
+			fmt.Fprintf(w, "Error: %s\n", err)
 			return
 		} else {
 			fmt.Fprintf(w, "Item added without errors \n")
@@ -179,9 +165,6 @@ func (db database) create(w http.ResponseWriter, req *http.Request) {
 
 // Updates an item in the db map
 func (db database) update(w http.ResponseWriter, req *http.Request) {
-	muR.Lock()
-	defer muR.Unlock()
-
 	// Check to see if the request is a POST and not a GET
 	if req.Method == "POST" {
 		item := req.URL.Query().Get("item")
@@ -197,10 +180,10 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		update := bson.M{"$set" : bson.M{"price": dollars(price)}}
+		update := bson.M{"$set": bson.M{"price": dollars(price)}}
 
-		if _, err := db.col.UpdateOne(db.ctx, filter, update,); err != nil {
-			fmt.Fprintf(w, "(Error) Update request failed: %s\n",err)
+		if _, err := db.col.UpdateOne(db.ctx, filter, update); err != nil {
+			fmt.Fprintf(w, "(Error) Update request failed: %s\n", err)
 			return
 		} else {
 			fmt.Fprintf(w, "Item updated without errors \n")
@@ -213,9 +196,6 @@ func (db database) update(w http.ResponseWriter, req *http.Request) {
 
 // Deletes an item in the db map
 func (db database) delete(w http.ResponseWriter, req *http.Request) {
-	muR.Lock()
-	defer muR.Unlock()
-
 	if req.Method == "POST" {
 		item := req.URL.Query().Get("item")
 
@@ -230,8 +210,8 @@ func (db database) delete(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if _,err := db.col.DeleteOne(db.ctx, filter); err != nil {
-			fmt.Fprintf(w, "(Error) delete request failed: %s\n",err)
+		if _, err := db.col.DeleteOne(db.ctx, filter); err != nil {
+			fmt.Fprintf(w, "(Error) delete request failed: %s\n", err)
 			return
 		} else {
 			fmt.Fprintf(w, "Item deleted without errors \n")
