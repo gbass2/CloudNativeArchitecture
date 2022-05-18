@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamepub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gamepub
+  template:
+    metadata:
+      labels:
+        app: gamepub
+    spec:
+      containers:
+      - name: gamepub
+        env:
+          - name: IGDB_key
+            value: "bjf52rgd650jp9r6i1ah3dqjh6sjw0"
+          - name: IGDB_TOKEN
+            value: "291rkwhbn61ew66uzpd3xxohzeysia"
+        image: gbass2/gamepub
+        resources:
+          limits:
+            memory: "523Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8000
