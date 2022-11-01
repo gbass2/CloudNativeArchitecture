@@ -1,3 +1,3 @@
 # Cloud Native Architecture Project
 
-# [Store](Sore)
+## [Store](/Store)
