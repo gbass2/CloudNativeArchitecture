@@ -1,3 +1,3 @@
 # Cloud Native Architecture Project
 
-## [Store](/Store)
+## [Store](https://github.com/gbass2/CloudNativeArchitecture/tree/main/projects/Store)
