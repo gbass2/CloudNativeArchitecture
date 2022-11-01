@@ -8,3 +8,4 @@
 
 ## [Project Server](https://github.com/gbass2/CloudNativeArchitecture/tree/main/projects/project%20server)
  - Server code for the project.
+ - The server is written in Go.
